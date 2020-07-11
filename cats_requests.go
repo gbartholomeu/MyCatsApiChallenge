@@ -13,55 +13,34 @@ import (
 
 var (
 	catsDatabase = CreateDBLink()
+	apiKey       = "<my_auth_key>"
 )
 
-type CatsWeightInner struct {
-	Imperial string `json":"imperial"`
-	Metric   string `json":"metric"`
+type CatsData struct {
+	Id               string     `json:"id"`
+	Name             string     `json:"name"`
+	Temperament      string     `json:"temperament"`
+	Origin           string     `json:"origin"`
+	Description      string     `json:"description"`
 }
 
-type CatsData struct {
-	Weight           CatsWeightInner `json:"weight"`
-	Id               string          `json:"id"`
-	Name             string          `json:"name"`
-	CfaURL           string          `json:"cfa_url"`
-	VetstreetURL     string          `json:"vetstreet_url"`
-	VcahospitalsURL  string          `json:"vcahospitals_url"`
-	Temperament      string          `json:"temperament"`
-	Origin           string          `json:"origin"`
-	CountryCodes     string          `json:"country_codes"`
-	CountryCode      string          `json:"country_code"`
-	Description      string          `json:"description"`
-	LifeSpan         string          `json:"life_span"`
-	Indoor           uint8           `json:"indoor"`
-	Lap              uint8           `json:"lap"`
-	AltNames         string          `json:"alt_names"`
-	Adaptability     uint8           `json:"adaptability"`
-	AffectionLevel   uint8           `json:"affection_level"`
-	ChildFriendly    uint8           `json:"child_friendly"`
-	DogFriendly      uint8           `json:"dog_friendly"`
-	EnergyLevel      uint8           `json:"energy_level"`
-	Grooming         uint8           `json:"grooming"`
-	HealthIssues     uint8           `json:"health_issues"`
-	Intelligence     uint8           `json:"intelligence"`
-	SheddingLevel    uint8           `json:"shedding_level"`
-	SocialNeeds      uint8           `json:"social_needs"`
-	StrangerFriendly uint8           `json:"stranger_friendly"`
-	Vocalisation     uint8           `json:"vocalisation"`
-	Experimental     uint8           `json:"experimental"`
-	Hairless         uint8           `json:"hairless"`
-	Natural          uint8           `json:"natural"`
-	Rare             uint8           `json:"rare"`
-	Rex              uint8           `json:"rex"`
-	SuppressedTail   uint8           `json:"suppressed_tail"`
-	ShortLegs        uint8           `json:"short_legs"`
-	WikipediaUrl     string          `json:"wikipedia_url"`
-	Hypoallergenic   uint8           `json:"hypoallergenic"`
+type CatsImages struct {
+	Id     string `json:"id"`
+	Url    string `json:"url"`
 }
 
 func main() {
+	FillDBWithCatsInfo()
+	FillDBWithCatsImages()
+	// FillDBWithCatsImagesWithHats()
+	// FillDBWithCatsImagesWithGlasses()
+}
+
+// ===== REQUESTS CODES =====
+
+func FillDBWithCatsInfo() {
+	fmt.Println("Fetching cats details")
 	var myCatsData []CatsData
-	apiKey := "<my_api_key>"
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", "https://api.thecatapi.com/v1/breeds", nil)
 	if err != nil {
@@ -80,54 +59,158 @@ func main() {
 	if errJSON != nil {
 		log.Println(errJSON)
 	}
-	fmt.Println("Filling DB with JSON content")
+	fmt.Println("Filling DB with cats content")
 	for _, catInfo := range myCatsData {
-		RunInsert("INSERT INTO cats_breeds(id, breed_name, weight_imperial, weight_metric, cfa_url, vet_street_url, vca_hospitals_url, temperament, origin, country_codes, country_code, breed_description, lifes_span, indoor, lap, alt_name, adaptability, affection_level, child_friendly, dog_friendly, energy_level, grooming, health_issues, intelligence, shedding_level, social_needs, stranger_friendly, vocalisation, experimental, hairless, breed_natural, rare, rex, suppressed_tail, short_legs, wikipedia_url, hypoallergenic) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", catInfo)
+		InsertCatInfo(catInfo)
 	}
-	RunSelect("SELECT ID, breed_name FROM cats_breeds")
 }
 
+func FillDBWithCatsImages() {
+	fmt.Println("Fetching images")
+	myCats := FetchCatsIDName()
+	var myCatImages []CatsImages
+	for _, cat := range myCats {
+		client := &http.Client{}
+		targetBreedRequest := fmt.Sprintf("https://api.thecatapi.com/v1/images/search?breed_id=%s&limit=3&mime_types=jpg,png", cat.Id)
+		req, err := http.NewRequest("GET", targetBreedRequest, nil)
+		if err != nil {
+			log.Fatal(err)
+		}
+		req.Header.Set("api_key", apiKey)
+		resp, err := client.Do(req)
+		if err != nil {
+			log.Fatal(err)
+		}
+		bodyText, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			log.Fatal(err)
+		}
+		errJSON := json.Unmarshal(bodyText, &myCatImages)
+		if errJSON != nil {
+			log.Println(errJSON)
+		}
+		fmt.Println(fmt.Sprintf("Filling DB with %s images", cat.Name))
+		for _, catImageInfo := range myCatImages {
+			InsertCatImage(catImageInfo, cat.Id, cat.Name)
+		}
+	}
+}
+
+func FillDBWithCatsImagesWithHats() {
+	fmt.Println("Fetching images")
+	myCats := FetchCatsIDName()
+	var myCatImages []CatsImages
+	for _, cat := range myCats {
+		client := &http.Client{}
+		targetBreedRequest := fmt.Sprintf("https://api.thecatapi.com/v1/images/search?breed_id=%s&limit=3&mime_types=jpg,png", cat.Id)
+		req, err := http.NewRequest("GET", targetBreedRequest, nil)
+		if err != nil {
+			log.Fatal(err)
+		}
+		req.Header.Set("api_key", apiKey)
+		resp, err := client.Do(req)
+		if err != nil {
+			log.Fatal(err)
+		}
+		bodyText, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			log.Fatal(err)
+		}
+		errJSON := json.Unmarshal(bodyText, &myCatImages)
+		if errJSON != nil {
+			log.Println(errJSON)
+		}
+		fmt.Println(fmt.Sprintf("Filling DB with %s images", cat.Name))
+		for _, catImageInfo := range myCatImages {
+			InsertCatImage(catImageInfo, cat.Id, cat.Name)
+		}
+	}
+}
+
+func FillDBWithCatsImagesWithGlasses() {
+	fmt.Println("Fetching images")
+	myCats := FetchCatsIDName()
+	var myCatImages []CatsImages
+	for _, cat := range myCats {
+		client := &http.Client{}
+		targetBreedRequest := fmt.Sprintf("https://api.thecatapi.com/v1/images/search?breed_id=%s&limit=3&mime_types=jpg,png", cat.Id)
+		req, err := http.NewRequest("GET", targetBreedRequest, nil)
+		if err != nil {
+			log.Fatal(err)
+		}
+		req.Header.Set("api_key", apiKey)
+		resp, err := client.Do(req)
+		if err != nil {
+			log.Fatal(err)
+		}
+		bodyText, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			log.Fatal(err)
+		}
+		errJSON := json.Unmarshal(bodyText, &myCatImages)
+		if errJSON != nil {
+			log.Println(errJSON)
+		}
+		fmt.Println(fmt.Sprintf("Filling DB with %s images", cat.Name))
+		for _, catImageInfo := range myCatImages {
+			InsertCatImage(catImageInfo, cat.Id, cat.Name)
+		}
+	}
+}
+
+// ===== DB CODES =====
+
 func CreateDBLink() *sql.DB {
-	db, err := sql.Open("mysql", "root:<my_password>@tcp(localhost:6603)/cats_api")
+	db, err := sql.Open("mysql", "root:<My_db_pwd>@tcp(localhost:6603)/cats_api")
 	if err != nil {
 		log.Fatal(err)
 	}
 	return db
 }
 
-func RunInsert(query string, cat_info CatsData) {
-	stmt, err := catsDatabase.Prepare(query)
+// ==INSERTS==
+
+func InsertCatInfo(cat_info CatsData) {
+	stmt, err := catsDatabase.Prepare("INSERT INTO cats_breeds(id, breed_name, temperament, origin, breed_description) VALUES (?,?,?,?,?)")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer stmt.Close() // Prepared statements take up server resources and should be closed after use.
-	_, err = stmt.Exec(cat_info.Id, cat_info.Name, cat_info.Weight.Imperial, cat_info.Weight.Metric, cat_info.CfaURL,
-		cat_info.VetstreetURL, cat_info.VcahospitalsURL, cat_info.Temperament, cat_info.Origin, cat_info.CountryCodes,
-		cat_info.CountryCode, cat_info.Description, cat_info.LifeSpan, cat_info.Indoor, cat_info.Lap, cat_info.AltNames,
-		cat_info.Adaptability, cat_info.AffectionLevel, cat_info.ChildFriendly, cat_info.DogFriendly, cat_info.EnergyLevel,
-		cat_info.Grooming, cat_info.HealthIssues, cat_info.Intelligence, cat_info.SheddingLevel, cat_info.SocialNeeds,
-		cat_info.StrangerFriendly, cat_info.Vocalisation, cat_info.Experimental, cat_info.Hairless, cat_info.Natural, cat_info.Rare,
-		cat_info.Rex, cat_info.SuppressedTail, cat_info.ShortLegs, cat_info.WikipediaUrl, cat_info.Hypoallergenic)
+	_, err = stmt.Exec(cat_info.Id, cat_info.Name, cat_info.Temperament, cat_info.Origin, cat_info.Description)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 }
 
-func RunSelect(query string) {
-	rows, err := catsDatabase.Query(query)
+func InsertCatImage(cat_image CatsImages, breed_id string, breed_name string) {
+	stmt, err := catsDatabase.Prepare("INSERT INTO cats_images(id, breed_id, breed_name, image_url) VALUES (?,?,?,?)")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer stmt.Close() // Prepared statements take up server resources and should be closed after use.
+	_, err = stmt.Exec(cat_image.Id, breed_id, breed_name, cat_image.Url)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+// ==SELECT==
+func FetchCatsIDName() []CatsData {
+	cats := make([]CatsData, 0)
+	rows, err := catsDatabase.Query("SELECT ID, breed_name FROM cats_breeds")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer rows.Close()
 	for rows.Next() {
-		var cat_id string
-		var cat_breed string
+		var catInfo CatsData
 
-		err = rows.Scan(&cat_id, &cat_breed)
+		err = rows.Scan(&catInfo.Id, &catInfo.Name)
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println(cat_id, cat_breed)
+		cats = append(cats, catInfo)
 	}
+	return cats
 }

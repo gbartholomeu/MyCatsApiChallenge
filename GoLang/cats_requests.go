@@ -13,7 +13,7 @@ import (
 
 var (
 	catsDatabase = CreateDBLink()
-	apiKey       = "3b728b75-36ab-4201-a229-bbc3266326dc"
+	apiKey       = "<my_api_key>"
 )
 
 type CatsData struct {

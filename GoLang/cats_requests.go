@@ -13,7 +13,7 @@ import (
 
 var (
 	catsDatabase = CreateDBLink()
-	apiKey       = "<my_api_key>"
+	apiKey       = "3b728b75-36ab-4201-a229-bbc3266326dc"
 )
 
 type CatsData struct {
@@ -189,7 +189,8 @@ func GetCatCategories(targetCategory string) int8 {
 // ===== DB CODES =====
 
 func CreateDBLink() *sql.DB {
-	db, err := sql.Open("mysql", "root:<my_db_pwd>@tcp(localhost:6603)/cats_api")
+	db, err := sql.Open("mysql", "root:z5dOucrrYHXvUNTHDqcz@tcp(mysql_db:3306)/cats_api")
+	// db, err := sql.Open("mysql", "root:z5dOucrrYHXvUNTHDqcz@tcp(localhost:6603)/cats_api")
 	if err != nil {
 		log.Fatal(err)
 	}

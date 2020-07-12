@@ -1,0 +1,14 @@
+version: "3.8"
+services:
+  golang_app:
+    build: ./GoLang/
+    container_name: golang_cats
+    depends_on:
+      - mysql_db
+    command: ["./wait-for-it.sh", "mysql_db:3306", "-t", "70", "--", "go", "run", "cats_requests.go"]
+  mysql_db:
+    build: ./MySQL/
+    container_name: mysql_db
+    environment:
+      MYSQL_ROOT_PASSWORD: z5dOucrrYHXvUNTHDqcz
+      MYSQL_DATABASE: cats_api

@@ -1,4 +1,3 @@
-CREATE DATABASE cats_api;
 USE cats_api;
 CREATE TABLE cats_breeds (id VARCHAR(255) NOT NULL, breed_name VARCHAR(255) NOT NULL, temperament VARCHAR(255), origin VARCHAR(255), 
 breed_description VARCHAR(500),  PRIMARY KEY (id));

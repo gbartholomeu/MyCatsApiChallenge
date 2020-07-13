@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	apiKey = "<my_api_key>"
+	apiKey = "3b728b75-36ab-4201-a229-bbc3266326dc"
 )
 
 type CatsWeightInner struct {
@@ -61,8 +61,8 @@ type CatsData struct {
 
 func main() {
 	router := mux.NewRouter()
+	router.HandleFunc("/breeds", GetCatsByID).Queries("id", "{breed_id}").Methods("GET")
 	router.HandleFunc("/breeds", GetCatsBreeds).Methods("GET")
-	router.HandleFunc("/breeds/{id}", GetCatsByID).Methods("GET")
 	router.HandleFunc("/temperament/{temperament}", GetCatsByTemperament).Methods("GET")
 	router.HandleFunc("/origin/{origin_id}", GetCatsByOrigin).Methods("GET")
 	log.Fatal(http.ListenAndServe(":8000", router))
@@ -93,11 +93,11 @@ func GetCatsBreeds(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetCatsByID(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	fmt.Println(fmt.Sprintf("Fetching %s cat details", params["id"]))
+	breed_id := r.URL.Query().Get("id")
+	fmt.Println(fmt.Sprintf("Fetching %s cat details", breed_id))
 	var myCatsData []CatsData
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", fmt.Sprintf("https://api.thecatapi.com/v1/breeds/search?q=%s", params["id"]), nil)
+	req, err := http.NewRequest("GET", fmt.Sprintf("https://api.thecatapi.com/v1/breeds/search?q=%s", breed_id), nil)
 	if err != nil {
 		log.Fatal(err)
 	}

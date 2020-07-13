@@ -12,3 +12,9 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: z5dOucrrYHXvUNTHDqcz
       MYSQL_DATABASE: cats_api
+  rest_server:
+    build: ./RestApi/
+    container_name: rest_api
+    ports: 
+      - "8000:8000"
+    command: ["go", "run", "main.go"]

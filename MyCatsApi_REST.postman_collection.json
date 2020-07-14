@@ -1,0 +1,91 @@
+{
+	"info": {
+		"_postman_id": "414ba00f-dee9-4aa3-a45b-c5823a202b77",
+		"name": "MyCatsApi_REST",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "All breeds",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8000/breeds",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"breeds"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Breed by id",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8000/breeds?id={breed_id}",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"breeds"
+					],
+					"query": [
+						{
+							"key": "id",
+							"value": "{breed_id}",
+							"description": "Breed id based on the TheCatsApi id field."
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Breed by temperament",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8000/temperament/{temperament}",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"temperament",
+						"{temperament}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Breed by origin",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8000/origin/{origin}",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"origin",
+						"{origin}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}

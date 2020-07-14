@@ -1,6 +1,6 @@
 # MyCatsApiChallenge
 
-**Before we begin, keep in mind this project was developed in MacOS for Docker usage. It may have different behavior or may not work on Windows or \*Unix like systems**
+**Before we begin, keep in mind this project was developed in MacOS for Docker usage. It may have different behavior or may not work on Windows**
 
 # SRE Challenge - The Cat API challenge
 Develop an application in the programming language of your preference to collect the following information from The Cat API (https://thecatapi.com/):

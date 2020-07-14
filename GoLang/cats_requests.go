@@ -8,12 +8,13 @@ import (
 	"log"
 	"net/http"
 
+	toml "github.com/BurntSushi/toml"
 	_ "github.com/go-sql-driver/mysql"
 )
 
 var (
 	catsDatabase = CreateDBLink()
-	apiKey       = "3b728b75-36ab-4201-a229-bbc3266326dc"
+	apiKey       = LoadApiKey()
 )
 
 type CatsData struct {
@@ -32,6 +33,10 @@ type CatsImages struct {
 type ImagesCategories struct {
 	Id   int8   `json:"id"`
 	Name string `json:"name"`
+}
+
+type Config struct {
+	Apikey string
 }
 
 func main() {
@@ -184,6 +189,15 @@ func GetCatCategories(targetCategory string) int8 {
 		}
 	}
 	return -1
+}
+
+func LoadApiKey() string {
+	var conf Config
+	_, err := toml.DecodeFile("api_configuration.toml", &conf)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return conf.Apikey
 }
 
 // ===== DB CODES =====

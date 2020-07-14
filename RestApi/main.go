@@ -8,11 +8,12 @@ import (
 	"net/http"
 	"strings"
 
+	toml "github.com/BurntSushi/toml"
 	"github.com/gorilla/mux"
 )
 
 var (
-	apiKey = "3b728b75-36ab-4201-a229-bbc3266326dc"
+	apiKey = LoadApiKey()
 )
 
 type CatsWeightInner struct {
@@ -57,6 +58,10 @@ type CatsData struct {
 	ShortLegs        uint8           `json:"short_legs"`
 	WikipediaUrl     string          `json:"wikipedia_url"`
 	Hypoallergenic   uint8           `json:"hypoallergenic"`
+}
+
+type Config struct {
+	Apikey string
 }
 
 func main() {
@@ -186,4 +191,13 @@ func GetCatsByOrigin(w http.ResponseWriter, r *http.Request) {
 	} else {
 		json.NewEncoder(w).Encode(returnData)
 	}
+}
+
+func LoadApiKey() string {
+	var conf Config
+	_, err := toml.DecodeFile("api_configuration.toml", &conf)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return conf.Apikey
 }
